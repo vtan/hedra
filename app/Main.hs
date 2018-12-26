@@ -3,27 +3,35 @@
 module Main (main) where
 
 import qualified Hedra
+import qualified System.Console.Haskeline as Haskeline
 
 import Control.Applicative ((<|>))
 import Control.Monad (guard, when)
+import Control.Monad.IO.Class (liftIO)
 import Data.Char (isDigit, isSpace)
 import Data.List (dropWhileEnd)
 import Data.Maybe (listToMaybe)
-import System.IO (hFlush, isEOF, stdout)
 
 main :: IO ()
-main = do
-  putStr "hedra> "
-  hFlush stdout
-  eof <- isEOF
-  if eof
-    then putStrLn "Exiting."
-    else do
-      line <- getLine
-      let trimmedLine = (dropWhile isSpace . dropWhileEnd isSpace) line
-      when ((not . null) trimmedLine) (processInput trimmedLine)
-      main
+main =
+  Haskeline.runInputT settings loop
   where
+    settings :: Haskeline.Settings IO
+    settings = Haskeline.setComplete Haskeline.noCompletion Haskeline.defaultSettings
+
+    loop :: Haskeline.InputT IO ()
+    loop = do
+      lineMay <- Haskeline.getInputLine "hedra> "
+      case lineMay of
+        Just line -> do
+          let trimmedLine = (dropWhile isSpace . dropWhileEnd isSpace) line
+          when
+            (not (null trimmedLine))
+            (liftIO (processInput trimmedLine))
+          loop
+        Nothing ->
+          pure ()
+
     processInput :: String -> IO ()
     processInput input =
       case parseInput input of
