@@ -70,7 +70,7 @@ showRoll count die = do
             -1 -> "[-]"
             0 -> "[ ]"
             1 -> "[+]"
-            _ -> "Fudge die result out of range: " ++ show n
+            _ -> error ("Fudge die result out of range: " ++ show n)
 
 printRoll :: Int -> Die -> IO ()
 printRoll count die =
