@@ -47,7 +47,12 @@ showRoll count die = do
   rolls <- roll count die
   let rollSum = sum rolls
       rollStrings = map showOneRoll rolls
-      str = show rollSum ++ " | " ++ intercalate " " rollStrings
+      showSum = case die of
+        Percent -> True
+        _ -> count > 1
+      str =
+        (if showSum then show rollSum ++ " | "  else "")
+        ++ intercalate " " rollStrings
   pure str
   where
     showOneRoll :: Int -> String
