@@ -39,7 +39,7 @@ main =
           putStr (input ++ ": ")
           Hedra.printRoll count die
         Nothing ->
-          putStrLn "Invalid input. Valid formats: d4, 2d6, 1d100, 4df"
+          putStrLn "Invalid input. Valid formats: d4, 2d6, 1d100, 1d%, 4df"
 
 parseInput :: String -> Maybe (Int, Hedra.Die)
 parseInput input =
@@ -57,7 +57,7 @@ parseSeparator = \case
 
 parseDie :: String -> [(Hedra.Die, String)]
 parseDie = \case
-  "%" -> [(Hedra.Percent, "")]
+  "%" -> [(Hedra.Percentile, "")]
   "f" -> [(Hedra.Fudge, "")]
   digits@(_:_) | all isDigit digits ->
     case read digits of
