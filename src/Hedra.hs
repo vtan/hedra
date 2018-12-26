@@ -24,35 +24,19 @@ instance Num Die where
   signum = error "Num instance for Die not implemented"
 
 d :: Int -> Die -> IO [Int]
-d = rollDice
+d = roll
 
 f :: Die
 f = Fudge
 
-rollDice :: Int -> Die -> IO [Int]
-rollDice count die =
-  let oneRoll = case die of
-        Sides sides | sides < 1 -> error "Dice must have at least one side."
-        Sides sides -> rollDieWithSides sides
-        Percent -> rollPercentDie
-        Fudge -> rollFudgeDie
-  in
-    if count >= 0
-      then concat <$> replicateM count oneRoll
-      else error "Must roll at least zero dice."
-
-rollDieWithSides :: Int -> IO [Int]
-rollDieWithSides sides = do
-  result <- randomRIO (1, sides)
-  pure [result]
-
-rollPercentDie :: IO [Int]
-rollPercentDie = do
-  tens <- randomRIO (1, 10)
-  ones <- randomRIO (1, 10)
-  pure [10 * tens, ones]
-
-rollFudgeDie :: IO [Int]
-rollFudgeDie = do
-  result <- randomRIO ((-1), 1)
-  pure [result]
+roll :: Int -> Die -> IO [Int]
+roll count die
+  | count < 0 = error "Must roll at least zero dice."
+  | otherwise = replicateM count oneRoll
+  where
+    oneRoll :: IO Int
+    oneRoll = case die of
+      Sides sides | sides < 1 -> error "Dice must have at least one side."
+      Sides sides -> randomRIO (1, sides)
+      Percent -> randomRIO (1, 100)
+      Fudge -> randomRIO ((-1), 1)
